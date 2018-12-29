@@ -29,7 +29,6 @@ class A is XML::Actions::Work {
     is $id, 'hello', "final called: id = $id";
     is $parent-path[*-1].name, 'final', 'this node is final';
     is $parent-path[*-2].name, 'scxml', 'parent node is scxml';
-  }
 
   method log ( Array $parent-path, :$expr ) {
     is $expr, "'hello world'", "log called: expr = $expr";
@@ -54,9 +53,29 @@ ok 6 - this node is log
 ok 7 - parent node is onentry
 ```
 
-## Documentation-->
+## Documentation
+
+Users who wish to process XML::Elements must provide an instantiated class which inherits from XML::Actions::Work. In that class methods named after the elements cant be defined. The `$parent-path` is an array holding the XML::Elements of the parent elements with the root on the first position and the current element on the last. The attributes are found on the XML element.
+```
+class A is XML::Actions::Work {
+
+  method someElement ( Array $parent-path, :$someAttribute ... ) {...}
+  method someOtherElement ( Array $parent-path, :$someAttribute ... ) {...}
+}
+```
+
+There are also text-, comment-, cdata- and pi-nodes. They can be defined as
+```
+  ...
+  method PROCESS-TEXT ( Array $parent-path, Str $text ) {...}
+  method PROCESS-COMMENT ( Array $parent-path, Str $comment ) {...}
+  method PROCESS-CDATA ( Array $parent-path, Str $cdata ) {...}
+  method PROCESS-PI ( Array $parent-path, Str $pi-target, Str $pi-content ) {...}
+  ...
+```
+
 ### Changes
-One can find the changes document [here]()
+One can find the changes document [in ./Doc]()
 
 ## Installing
 

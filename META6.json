@@ -1,7 +1,7 @@
 {
   "name": "SCXml",
   "description": "XML Actions",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "license": "Artistic-2.0",
   "tags": [ "XML", "actions"],
   "perl": "6",

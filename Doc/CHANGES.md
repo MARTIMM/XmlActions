@@ -1,4 +1,6 @@
 
+* 0.2.0
+  * Added other node types to be processed. Methods are PROCESS-TEXT, PROCESS-COMMENT, PROCESS-CDATA and PROCESS-PI
 * 0.1.0
   * XML file loaded and several checks are in place
   * All XML::Element nodes are walked recursively
