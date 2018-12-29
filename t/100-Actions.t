@@ -1,0 +1,76 @@
+use v6;
+#use lib 't';
+use XML::Actions;
+use Test;
+
+#-------------------------------------------------------------------------------
+my $dir = 't/x';
+mkdir $dir unless $dir.IO ~~ :e;
+
+my Str $file = "$dir/a.xml";
+$file.IO.spurt(Q:q:to/EOXML/);
+  <scxml xmlns="http://www.w3.org/2005/07/scxml"
+         version="1.0"
+         initial="hello">
+
+    <final id="hello">
+      <onentry>
+        <log expr="'hello world'" />
+      </onentry>
+    </final>
+  </scxml>
+  EOXML
+
+#-------------------------------------------------------------------------------
+class A is XML::Actions::Work {
+
+  has Bool $.log-done = False;
+
+  method final ( Array $parent-path, :$id ) {
+    is $id, 'hello', "final called: id = $id";
+    is $parent-path[*-1].name, 'final', 'this node is final';
+    is $parent-path[*-2].name, 'scxml', 'parent node is scxml';
+  }
+
+  method onentry ( Array $parent-path ) {
+    is $parent-path[*-1].name, 'onentry', 'this node is onentry';
+    is $parent-path[*-2].name, 'final', 'parent node is final';
+    is $parent-path[*-3].name, 'scxml', 'parent parents node is scxml';
+  }
+
+  method log ( Array $parent-path, :$expr ) {
+    is $expr, "'hello world'", "log called: expr = $expr";
+    is $parent-path[*-1].name, 'log', 'this node is log';
+    is $parent-path[*-2].name, 'onentry', 'parent node is onentry';
+    $!log-done = True;
+  }
+}
+
+#-------------------------------------------------------------------------------
+subtest 'Action primitives', {
+  my XML::Actions $a;
+
+  throws-like
+    { $a .= new(:file<non-existent-file>); },
+    X::XML::Actions, message => "File 'non-existent-file' not found";
+
+  throws-like
+    { $a .= new(); $a.process(:actions(A.new())); },
+    X::XML::Actions, message => "No xml document to work on";
+}
+
+#-------------------------------------------------------------------------------
+subtest 'Action object', {
+  my XML::Actions $a .= new(:$file);
+  isa-ok $a, XML::Actions, 'type ok';
+
+  my A $w .= new();
+  $a.process(:actions($w));
+  ok $w.log-done, 'logging done';
+}
+
+#-------------------------------------------------------------------------------
+done-testing;
+
+unlink $file;
+rmdir $dir;
