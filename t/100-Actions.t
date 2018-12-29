@@ -1,5 +1,5 @@
 use v6;
-#use lib 't';
+
 use XML::Actions;
 use Test;
 

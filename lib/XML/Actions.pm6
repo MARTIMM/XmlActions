@@ -77,6 +77,33 @@ class XML::Actions:auth<github:MARTIMM> {
         for $node.nodes -> $child { self!process-node($child); }
         $!parent-path.pop;
       }
+
+      when XML::Text {
+        if $!actions.^can('PROCESS-TEXT') {
+          $!actions.PROCESS-TEXT( $!parent-path, $node.text());
+        }
+      }
+
+      when XML::Comment {
+        if $!actions.^can('PROCESS-COMMENT') {
+          $!actions.PROCESS-COMMENT( $!parent-path, $node.data());
+        }
+      }
+
+      when XML::CDATA {
+        if $!actions.^can('PROCESS-CDATA') {
+          $!actions.PROCESS-CDATA( $!parent-path, $node.data());
+        }
+      }
+
+      when XML::PI {
+        if $!actions.^can('PROCESS-PI') {
+          my Str $target;
+          my Str $content;
+          ( $target, $content) = $node.data().split( ' ', 2);
+          $!actions.PROCESS-PI( $!parent-path, $target, $content);
+        }
+      }
     }
   }
 
