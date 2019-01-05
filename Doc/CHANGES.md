@@ -1,6 +1,6 @@
 
-* 0.2.0
-  * Added other node types to be processed. Methods are PROCESS-TEXT, PROCESS-COMMENT, PROCESS-CDATA and PROCESS-PI
+* 0.3.0 Nodes can be revisited after processing child elements. The method called will be <some element>-END(). Don't yet know about the arguments though.
+* 0.2.0 Added other node types to be processed. Methods are PROCESS-TEXT, PROCESS-COMMENT, PROCESS-CDATA and PROCESS-PI
 * 0.1.0
   * XML file loaded and several checks are in place
   * All XML::Element nodes are walked recursively
