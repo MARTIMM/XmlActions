@@ -11,8 +11,7 @@ class X::XML::Actions:auth<github:MARTIMM> is Exception {
 }
 
 #-------------------------------------------------------------------------------
-class XML::Actions::Work:auth<github:MARTIMM> {
-}
+class XML::Actions::Work:auth<github:MARTIMM> { }
 
 #-------------------------------------------------------------------------------
 class XML::Actions:auth<github:MARTIMM> {
@@ -45,7 +44,7 @@ class XML::Actions:auth<github:MARTIMM> {
 
   #-----------------------------------------------------------------------------
   multi method process (
-    XML::Document:D :$!document!,XML::Actions::Work:D :$!actions!
+    XML::Document:D :$!document!, XML::Actions::Work:D :$!actions!
   ) {
     self!process-document;
   }
@@ -75,33 +74,34 @@ class XML::Actions:auth<github:MARTIMM> {
         $!parent-path.push($node);
         self!check-action($node);
         for $node.nodes -> $child { self!process-node($child); }
+        self!check-end-node-action($node);
         $!parent-path.pop;
       }
 
       when XML::Text {
-        if $!actions.^can('PROCESS-TEXT') {
-          $!actions.PROCESS-TEXT( $!parent-path, $node.text());
+        if $!actions.^can('process-text') {
+          $!actions.process-text( $!parent-path, $node.text());
         }
       }
 
       when XML::Comment {
-        if $!actions.^can('PROCESS-COMMENT') {
-          $!actions.PROCESS-COMMENT( $!parent-path, $node.data());
+        if $!actions.^can('process-comment') {
+          $!actions.process-comment( $!parent-path, $node.data());
         }
       }
 
       when XML::CDATA {
-        if $!actions.^can('PROCESS-CDATA') {
-          $!actions.PROCESS-CDATA( $!parent-path, $node.data());
+        if $!actions.^can('process-cdata') {
+          $!actions.process-cdata( $!parent-path, $node.data());
         }
       }
 
       when XML::PI {
-        if $!actions.^can('PROCESS-PI') {
+        if $!actions.^can('process-pi') {
           my Str $target;
           my Str $content;
           ( $target, $content) = $node.data().split( ' ', 2);
-          $!actions.PROCESS-PI( $!parent-path, $target, $content);
+          $!actions.process-pi( $!parent-path, $target, $content);
         }
       }
     }
@@ -115,6 +115,18 @@ class XML::Actions:auth<github:MARTIMM> {
 
     if $!actions.^can($name) {
       $!actions."$name"( $!parent-path, |%attribs);
+    }
+  }
+
+  #-----------------------------------------------------------------------------
+  method !check-end-node-action ( $node ) {
+
+    my Str $name = $node.name;
+    my %attribs = $node.attribs;
+
+    my Str $end-node = $name ~ "-END";
+    if $!actions.^can($end-node) {
+      $!actions."$end-node"( $!parent-path, |%attribs);
     }
   }
 }

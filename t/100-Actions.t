@@ -38,6 +38,11 @@ class A is XML::Actions::Work {
     is $parent-path[*-3].name, 'scxml', 'parent parents node is scxml';
   }
 
+  method onentry-END ( Array $parent-path ) {
+    is $parent-path[*-1].name, 'onentry',
+       'this node is onentry after processing children';
+  }
+
   method log ( Array $parent-path, :$expr ) {
     is $expr, "'hello world'", "log called: expr = $expr";
     is $parent-path[*-1].name, 'log', 'this node is log';
