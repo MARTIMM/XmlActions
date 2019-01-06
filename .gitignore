@@ -5,3 +5,4 @@ Old/*
 */.precomp
 *.zargo~
 ~*
+.pause
