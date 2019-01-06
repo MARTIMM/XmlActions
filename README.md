@@ -73,7 +73,7 @@ There are also text-, comment-, cdata- and pi-nodes. They can be defined as
 ```
 
 ### Changes
-One can find the changes document [in ./Doc]()
+One can find the changes document [in ./doc][release]
 
 ## Installing
 
@@ -90,3 +90,6 @@ Current maintainer **Marcel Timmerman** (MARTIMM on github)
 ## License
 
 **Artistic-2.0**
+
+<!---- [refs] ----------------------------------------------------------------->
+[release]: https://github.com/MARTIMM/XmlActions/blob/master/doc/CHANGES.md
