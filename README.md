@@ -30,8 +30,8 @@ class A is XML::Actions::Work {
 
   method log ( Array $parent-path, :$expr ) {
     is $expr, "'hello world'", "log called: expr = $expr";
-    is $parent-path[*-1].name, 'log', 'this node is log';
-    is $parent-path[*-2].name, 'onentry', 'parent node is onentry';
+    is-deeply @$parent-path.map(*.name), <scxml final onentry log>,
+              "<scxml final onentry log> found in parent array";
   }
 }
 
@@ -47,13 +47,12 @@ ok 2 - final called: id = hello
 ok 3 - this node is final
 ok 4 - parent node is scxml
 ok 5 - log called: expr = 'hello world'
-ok 6 - this node is log
-ok 7 - parent node is onentry
+ok 6 - <scxml final onentry log> found in parent array
 ```
 
 ## Documentation
 
-Users who wish to process XML::Elements must provide an instantiated class which inherits from XML::Actions::Work. In that class methods named after the elements cant be defined. The `$parent-path` is an array holding the XML::Elements of the parent elements with the root on the first position and the current element on the last. The attributes are found on the XML element.
+Users who wish to process XML::Elements must provide an instantiated class which inherits from XML::Actions::Work. In that class, methods named after the elements can be defined. The `$parent-path` is an array holding the XML::Elements of the parent elements with the root on the first position and the current element on the last. The attributes are found on the XML element.
 ```
 class A is XML::Actions::Work {
 
@@ -71,6 +70,10 @@ There are also text-, comment-, cdata- and pi-nodes. They can be defined as
   method PROCESS-PI ( Array $parent-path, Str $pi-target, Str $pi-content ) {...}
   ...
 ```
+If you want to process an element after all children are processed, you can use the same element method with `-END` attached. It has the same number arguments.
+  ```
+  method someElement-END ( Array $parent-path, :$someAttribute ... ) {...}
+  ```
 
 ### Changes
 One can find the changes document [in ./doc][release]
@@ -81,7 +84,7 @@ Use zef to install the package: `zef install XML::Actions`
 
 ## Versions of PERL, MOARVM
 
-This project is tested against the newest perl6 version with Rakudo built on MoarVM implementing Perl v6.*.
+This project is tested against the newest perl6 version with Rakudo built on MoarVM implementing Perl v6.
 
 ## AUTHORS
 

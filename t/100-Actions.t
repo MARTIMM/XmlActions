@@ -36,6 +36,8 @@ class A is XML::Actions::Work {
     is $parent-path[*-1].name, 'onentry', 'this node is onentry';
     is $parent-path[*-2].name, 'final', 'parent node is final';
     is $parent-path[*-3].name, 'scxml', 'parent parents node is scxml';
+    is-deeply @$parent-path.map(*.name), <scxml final onentry>,
+              "<scxml final onentry> found in parent array";
   }
 
   method onentry-END ( Array $parent-path ) {
@@ -45,8 +47,9 @@ class A is XML::Actions::Work {
 
   method log ( Array $parent-path, :$expr ) {
     is $expr, "'hello world'", "log called: expr = $expr";
-    is $parent-path[*-1].name, 'log', 'this node is log';
-    is $parent-path[*-2].name, 'onentry', 'parent node is onentry';
+    is-deeply @$parent-path.map(*.name), <scxml final onentry log>,
+              "<scxml final onentry log> found in parent array";
+
     $!log-done = True;
   }
 }
