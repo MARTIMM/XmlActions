@@ -59,6 +59,12 @@ class XML::Actions:auth<github:MARTIMM> {
   }
 
   #-----------------------------------------------------------------------------
+  # Things can be changed while processing
+  method result ( --> Str ) {
+    $!document.Str
+  }
+
+  #-----------------------------------------------------------------------------
   method !process-document ( ) {
     my XML::Element $root = $!document.root();
 

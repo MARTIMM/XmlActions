@@ -75,6 +75,11 @@ subtest 'Action object', {
   my A $w .= new();
   $a.process(:actions($w));
   ok $w.log-done, 'logging done';
+
+#`{{ Cannot compare comlete string because attribs may change order
+  note $a.result;
+  is $a.result, '<?xml version="1.0"?><scxml xmlns="http://www.w3.org/2005/07/scxml" initial="hello" version="1.0"> <final id="hello"> <onentry> <log expr="&#39;hello world&#39;"/>  </onentry>  </final>  </scxml>', 'returned result ok';
+}}
 }
 
 #-------------------------------------------------------------------------------

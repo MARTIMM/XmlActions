@@ -1,4 +1,6 @@
 
+* 0.3.2 2019-01-11
+  * Added method result() to return serialized xml. It is possible to change xml when processing.
 * 0.3.1 2019-01-06
   * <some element>-END() have the same arguments as the element methods have.
   * Improvement of documents and tests.
