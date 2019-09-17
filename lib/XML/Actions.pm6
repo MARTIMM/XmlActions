@@ -16,13 +16,17 @@ class XML::Actions::Work:auth<github:MARTIMM> { }
 #-------------------------------------------------------------------------------
 class XML::Actions:auth<github:MARTIMM> {
 
+# temp gather element names to see if already a message is printed
+state %element-errors = %();
+
   has XML::Document $!document;
   has $!actions;
   has Array $!parent-path;
 
   #-----------------------------------------------------------------------------
   multi submethod BUILD ( Str:D :$file! ) {
-    die X::XML::Actions.new(:message("File '$file' not found")) unless $file.IO ~~ :r;
+    die X::XML::Actions.new(:message("File '$file' not found"))
+        unless $file.IO ~~ :r;
     $!document = from-xml-file($file);
   }
 
@@ -85,29 +89,64 @@ class XML::Actions:auth<github:MARTIMM> {
       }
 
       when XML::Text {
-        if $!actions.^can('process-text') {
-          $!actions.process-text( $!parent-path, $node.text());
+        if $!actions.^can('xml:text') {
+          $!actions.'xml:text'( $!parent-path, $node.text());
+        }
+
+        elsif $!actions.^can('PROCESS-TEXT') {
+  note "method call to PROCESS-TEXT\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:text\() instead"
+    unless %element-errors{'PROCESS-TEXT'};
+
+  %element-errors{'PROCESS-TEXT'} //= True;
+          $!actions.PROCESS-TEXT( $!parent-path, $node.text());
         }
       }
 
       when XML::Comment {
-        if $!actions.^can('process-comment') {
-          $!actions.process-comment( $!parent-path, $node.data());
+        if $!actions.^can('xml:comment') {
+          $!actions.'xml:comment'( $!parent-path, $node.data());
+        }
+
+        elsif $!actions.^can('PROCESS-COMMENT') {
+          $!actions.PROCESS-COMMENT( $!parent-path, $node.data());
+  note "method call to PROCESS-COMMENT\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:comment\() instead"
+    unless %element-errors{'PROCESS-COMMENT'};
+
+  %element-errors{'PROCESS-COMMENT'} //= True;
         }
       }
 
       when XML::CDATA {
-        if $!actions.^can('process-cdata') {
-          $!actions.process-cdata( $!parent-path, $node.data());
+        if $!actions.^can('xml:cdata') {
+          $!actions.'xml:cdata'( $!parent-path, $node.data());
+        }
+
+        elsif $!actions.^can('PROCESS-CDATA') {
+          $!actions.PROCESS-CDATA( $!parent-path, $node.data());
+  note "method call to PROCESS-CDATA\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:cdata\() instead"
+    unless %element-errors{'PROCESS-CDATA'};
+
+  %element-errors{'PROCESS-CDATA'} //= True;
         }
       }
 
       when XML::PI {
-        if $!actions.^can('process-pi') {
+        if $!actions.^can('xml:pi') {
           my Str $target;
           my Str $content;
           ( $target, $content) = $node.data().split( ' ', 2);
-          $!actions.process-pi( $!parent-path, $target, $content);
+          $!actions.'xml:pi'( $!parent-path, $target, $content);
+        }
+
+        elsif $!actions.^can('PROCESS-PI') {
+          my Str $target;
+          my Str $content;
+          ( $target, $content) = $node.data().split( ' ', 2);
+  note "method call to PROCESS-PI\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:pi\() instead"
+    unless %element-errors{'PROCESS-PI'};
+
+  %element-errors{'PROCESS-PI'} //= True;
+          $!actions.PROCESS-PI( $!parent-path, $target, $content);
         }
       }
     }
@@ -119,10 +158,24 @@ class XML::Actions:auth<github:MARTIMM> {
     my Str $name = $node.name;
     my %attribs = $node.attribs;
 
-    if $!actions.^can($name) {
-      $!actions."$name"( $!parent-path, |%attribs);
+    my Str $start-node = $name ~ ":start";
+    if $!actions.^can($name ~ ':start') {
+      $!actions."{$name}:start"( $!parent-path, |%attribs);
     }
+
+
+# remove after version 0.5.0
+elsif $!actions.^can($name) {
+  note "method call to $name\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide $start-node\() instead"
+    unless %element-errors{$name};
+
+  %element-errors{$name} //= True;
+
+  $!actions."$name"( $!parent-path, |%attribs);
+}
+
   }
+
 
   #-----------------------------------------------------------------------------
   method !check-end-node-action ( $node ) {
@@ -130,9 +183,19 @@ class XML::Actions:auth<github:MARTIMM> {
     my Str $name = $node.name;
     my %attribs = $node.attribs;
 
-    my Str $end-node = $name ~ "-END";
+    my Str $end-node = $name ~ ":end";
     if $!actions.^can($end-node) {
       $!actions."$end-node"( $!parent-path, |%attribs);
     }
+
+# remove after version 0.5.0
+elsif $!actions.^can($name ~ '-END') {
+  note "method call to {$name}-END\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide $end-node\() instead"
+    unless %element-errors{$name ~ '-END'};
+
+  %element-errors{$name ~ '-END'} //= True;
+
+  $!actions."{$name}-END"( $!parent-path, |%attribs);
+}
   }
 }

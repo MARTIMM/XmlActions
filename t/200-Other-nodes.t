@@ -3,6 +3,7 @@ use v6;
 use XML::Actions;
 use Test;
 
+
 #-------------------------------------------------------------------------------
 my $dir = 't/x';
 mkdir $dir unless $dir.IO ~~ :e;
@@ -20,38 +21,86 @@ $file.IO.spurt(Q:q:to/EOXML/);
   EOXML
 
 #-------------------------------------------------------------------------------
-class A is XML::Actions::Work {
+class A1 is XML::Actions::Work {
+  has Int $.tests = 0;
 
   method PROCESS-TEXT ( Array $parent-path, Str $text ) {
     return if $text ~~ /^ \s* $/;
     is $text, 'Test for text', "Text '$text' found";
     is $parent-path[*-1].name, 'h1', 'parent node is h1';
+    $!tests += 2;
   }
 
   method PROCESS-COMMENT ( Array $parent-path, Str $comment ) {
     is $comment, ' Test for comment ', "Text '$comment' found";
     is $parent-path[*-1].name, 'body', 'parent node is body';
+    $!tests += 2;
   }
 
   method PROCESS-CDATA ( Array $parent-path, Str $cdata ) {
     is $cdata, ' Test for CDATA', "Text '$cdata' found";
     is $parent-path[*-1].name, 'body', 'parent node is body';
+    $!tests += 2;
   }
 
   method PROCESS-PI ( Array $parent-path, Str $pi-target, Str $pi-content ) {
     is $pi-target, 'PITarget', "Target '$pi-target' found";
     is $pi-content, 'Test for PI', "Text '$pi-content' found";
     is $parent-path[*-1].name, 'body', 'parent node is body';
+    $!tests += 3;
   }
 }
 
 #-------------------------------------------------------------------------------
-subtest 'Action object', {
+class A2 is XML::Actions::Work {
+  has Int $.tests = 0;
+
+  method xml:text ( Array $parent-path, Str $text ) {
+    return if $text ~~ /^ \s* $/;
+    is $text, 'Test for text', "Text '$text' found";
+    is $parent-path[*-1].name, 'h1', 'parent node is h1';
+    $!tests += 2;
+  }
+
+  method xml:comment ( Array $parent-path, Str $comment ) {
+    is $comment, ' Test for comment ', "Text '$comment' found";
+    is $parent-path[*-1].name, 'body', 'parent node is body';
+    $!tests += 2;
+  }
+
+  method xml:cdata ( Array $parent-path, Str $cdata ) {
+    is $cdata, ' Test for CDATA', "Text '$cdata' found";
+    is $parent-path[*-1].name, 'body', 'parent node is body';
+    $!tests += 2;
+  }
+
+  method xml:pi ( Array $parent-path, Str $pi-target, Str $pi-content ) {
+    is $pi-target, 'PITarget', "Target '$pi-target' found";
+    is $pi-content, 'Test for PI', "Text '$pi-content' found";
+    is $parent-path[*-1].name, 'body', 'parent node is body';
+    $!tests += 3;
+  }
+}
+
+#-------------------------------------------------------------------------------
+subtest 'Actions on object 1', {
+
   my XML::Actions $a .= new(:$file);
   isa-ok $a, XML::Actions, 'type ok';
 
-  my A $w .= new();
-  $a.process(:actions($w));
+  my A1 $w1 .= new();
+  $a.process(:actions($w1));
+  is $w1.tests, 9, 'nbr tests ok';
+}
+
+#-------------------------------------------------------------------------------
+subtest 'Actions on object 2', {
+
+  my XML::Actions $a .= new(:$file);
+  isa-ok $a, XML::Actions, 'type ok';
+  my A2 $w2 .= new();
+  $a.process(:actions($w2));
+  is $w2.tests, 9, 'nbr tests ok';
 }
 
 #-------------------------------------------------------------------------------
