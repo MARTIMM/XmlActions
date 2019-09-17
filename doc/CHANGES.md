@@ -1,4 +1,8 @@
+# remove method call element() after version 0.5.0
 
+* 0.3.3 2019-09-16
+  * Add a deprecation message for methods named after their elements. New methods should be called element-START() as is done for element-END(). Old method call will be removed after version 0.4.0.
+  * Bugfix: methods to process text, cdata, text and comments were tested for lowercase names. This must be in uppercase.
 * 0.3.2 2019-01-11
   * Added method result() to return serialized xml. It is possible to change xml when processing.
 * 0.3.1 2019-01-06

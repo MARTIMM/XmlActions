@@ -61,37 +61,44 @@ class A is XML::Actions::Work {
 }
 ```
 
+### Note: clash with existing methods inherited from other classes.
+There is an issue (#1) where an element triggered a call to a method from class **Any** and crashed. To prevent this, a method must be added explicitly overriding the method from the inherited class. In the meantime this call will be deprecated in favor of calling a method with `:start` attached to the element name as is done for processing the end tag. The above example would become;
+```
+class A is XML::Actions::Work {
+
+  method someElement:start ( Array $parent-path, :$someAttribute ... ) {...}
+  method someOtherElement:start ( Array $parent-path, :$someAttribute ... ) {...}
+}
+```
+
 There are also text-, comment-, cdata- and pi-nodes. They can be defined as
 ```
-  ...
   method PROCESS-TEXT ( Array $parent-path, Str $text ) {...}
   method PROCESS-COMMENT ( Array $parent-path, Str $comment ) {...}
   method PROCESS-CDATA ( Array $parent-path, Str $cdata ) {...}
   method PROCESS-PI ( Array $parent-path, Str $pi-target, Str $pi-content ) {...}
-  ...
 ```
+For uniformity these will also be renamed into `xml:text()`, `xml:comment()`, `xml:cdata()` and `xml:pi()` resp.
+
 If you want to process an element after all children are processed, you can use the same element method with `-END` attached. It has the same number arguments.
   ```
   method someElement-END ( Array $parent-path, :$someAttribute ... ) {...}
   ```
+And this one will also be changed into `someElement:end()`.
 
 ### Changes
-One can find the changes document [in ./doc][release]
+One can find the changes document [in ./doc/CHANGES.md][release]
 
 ## Installing
-
 Use zef to install the package: `zef install XML::Actions`
 
 ## Versions of PERL, MOARVM
-
 This project is tested against the newest perl6 version with Rakudo built on MoarVM implementing Perl v6.
 
 ## AUTHORS
-
 Current maintainer **Marcel Timmerman** (MARTIMM on github)
 
 ## License
-
 **Artistic-2.0**
 
 <!---- [refs] ----------------------------------------------------------------->
