@@ -1,3 +1,5 @@
+# Issue 1
+
 ## Changes because of issue #1
 
 * First idea: `method element-START ( Array $parent-path, *%attributes ) { }` like the method to process the end tag `method element-END (...) {...}`
@@ -66,3 +68,7 @@ Methods like the following could then be declared
 
 Perhaps we can get wilder by
 * `xml:<html * p>:text()`
+
+
+# Streaming
+Large files cannot be processed because memory will be filled to the rim. Another way of processing must be found which involves reading the xml line by line. This is crystallized in XML::Actions::Stream.
