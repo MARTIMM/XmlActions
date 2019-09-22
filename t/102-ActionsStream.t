@@ -42,12 +42,13 @@ class A is XML::Actions::Stream::Work {
     is $version, '1.0', 'xml version 1.0';
   }
 
-  method xml:doctype ( :$dtd-text ) {
+  method xml:doctype ( :$dtd ) {
     $!doctype = True;
-    like $dtd-text, /:s define the internal DTD/, 'dtd text found';
+    like $dtd, /:s define the internal DTD/, 'dtd text found';
   }
 
   method final:start ( Array $parent-path, :$id ) {
+#note $parent-path[*-1].value;
     is $id, 'hello', "final called: id = $id";
     is $parent-path[*-1].key, 'final', 'this node is final';
     is $parent-path[*-2].key, 'scxml', 'parent node is scxml';
@@ -64,6 +65,10 @@ class A is XML::Actions::Stream::Work {
   method onentry:end ( Array $parent-path ) {
     is $parent-path[*-1].key, 'onentry',
        'this node is onentry after processing children';
+  }
+
+  method scxml:end ( Array $parent-path ) {
+    is $parent-path[*-1].key, 'scxml', 'end of scxml';
   }
 
   method log:start ( Array $parent-path, :$expr ) {
