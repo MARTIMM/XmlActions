@@ -62,7 +62,7 @@ class A is XML::Actions::Work {
 ```
 
 ### Note: clash with existing methods inherited from other classes.
-There is an issue (#1) where an element triggered a call to a method from class **Any** and crashed. To prevent this, a method must be added explicitly overriding the method from the inherited class. In the meantime this call will be deprecated in favor of calling a method with `:start` attached to the element name as is done for processing the end tag. The above example would become;
+There is an issue (#1) where an element triggered a call to a method from class **Any** and crashed. To prevent this, a method must be added explicitly overriding the method from the inherited class. In the meantime this call will be deprecated in favor of calling a method with `:start` attached to the element name as is done for processing the end tag. This is called an extended identifier where the documentation [can be found here](https://docs.perl6.org/syntax/identifiers#Extended_identifiers). The above example would become;
 ```
 class A is XML::Actions::Work {
 
@@ -85,6 +85,34 @@ If you want to process an element after all children are processed, you can use 
   method someElement-END ( Array $parent-path, :$someAttribute ... ) {...}
   ```
 And this one will also be changed into `someElement:end()`.
+So after version 0.5.0 the following methods can be called;
+* `xml:pi ( Str $target, Str $program )`. For `<?target program?>`.
+* `xml:comment ( Str $comment-text )`. For `<!-- comment text -->`.
+* `xml:cdata ( Str $data )`. For `<[CDATA[ data ]]>`.
+* `xml:text ( Str $text )`. All text as content of an element.
+
+* `someElement:start ( Array $parent-path, *%element-attributes )`
+* `someElement:end ( Array $parent-path, *%element-attributes )`
+
+The other methods will get a deprecation message until version 0.5.0.
+
+## Large files
+When you have to process a large file (e.g. an XML file holding POI data of Turkey from osm planet is about 6.2 Gb), one cannot use the `XML::Actions` module because the DOM tree is build in memory. Since version 0.4.0 the package is extended with module `XML::Actions::Stream` which eats the file in chunks of 64 Kb and chops it up into parsable parts. There is no check on proper xml yet. You can use other tools for that. There are a few more methods possible to define by the user. The arguments to the methods are the same but the first argument, which is an array, has other items.
+
+### User definable  methods
+The user can define the methods in a class which inherits from XML::Actions::Stream::Work. The methods which the user may define are;
+* `xml:prolog ( *%prolog-attributes )`. Found only at start of document. It might have attributes version, encoding and/or standalone.
+* `xml:doctype ( Str :$dtd, Str :$url, Bool :$empty )`. Found only at start of document. It might have an internal or external DTD where empty will be False. otherwise empty is True.
+* `xml:pi ( Str $target, Str $program )`. For `<?target program?>`.
+* `xml:comment ( Str $comment-text )`. For `<!-- comment text -->`.
+* `xml:cdata ( Str $data )`. For `<[CDATA[ data ]]>`.
+* `xml:text ( Str $text )`. All text as content of an element.
+
+* `someElement:startend ( Array $parent-path, *%element-attributes )`. This method is called just before someElement:start() is called, just to show that there will be no call to someElement:end. In other words, there is no element content.
+* `someElement:start ( Array $parent-path, *%element-attributes )`
+* `someElement:end ( Array $parent-path, *%element-attributes )`
+
+The array is a list of pairs. The key of each pair is the element name and the value is a hash of its attributes. Entry \$parent-path[\*-1] is the currently called element, so its parent is at \*-2. The root element is at 0 and is always available.
 
 ### Changes
 One can find the changes document [in ./doc/CHANGES.md][release]
