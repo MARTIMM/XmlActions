@@ -3,7 +3,7 @@
   "description": "Perform actions on all XML nodes",
   "version": "0.4.0",
   "license": "Artistic-2.0",
-  "tags": [ "XML", "actions"],
+  "tags": [ "XML", "actions", "streaming", "stream"],
   "perl": "6",
   "authors": [ "Marcel Timmerman"],
   "depends": [
@@ -13,7 +13,8 @@
   "build-depends": [ ],
   "provides": {
     "XML::Actions": "lib/XML/Actions.pm6",
-    "XML::Actions::Stream": "lib/XML/Actions/Stream.pm6"
+    "XML::Actions::Stream": "lib/XML/Actions/Stream.pm6",
+    "XML::Actions::Stream::XmlNode": "lib/XML/Actions/Stream/XmlNode.pm6"
   },
   "source-url": "git://github.com/MARTIMM/XmlActions.git"
 }
