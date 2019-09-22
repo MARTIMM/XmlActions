@@ -102,7 +102,7 @@ When you have to process a large file (e.g. an XML file holding POI data of Turk
 ### User definable  methods
 The user can define the methods in a class which inherits from XML::Actions::Stream::Work. The methods which the user may define are;
 * `xml:prolog ( *%prolog-attributes )`. Found only at start of document. It might have attributes version, encoding and/or standalone.
-* `xml:doctype ( Str :$dtd, Str :$url, Bool :$empty )`. Found only at start of document. It might have an internal or external DTD where empty will be False. otherwise empty is True.
+* `xml:doctype ( *%doctype-attributes )`. Found only at start of document. It might have an internal or external DTD. The arguments can be: `Str :$dtd`, `Str :$url`, `Bool :$empty`, `Bool: $public`, `Bool: $system`, `Str :$fpi`. \$empty is True when there is no DTD, SYSTEM or PUBLIC defined. \$fpi (Formal Public Identifier) should be defined when \$public is True. \$url should be defined when \$system is True but doesn't have to be defined if \$public is True.
 * `xml:pi ( Str $target, Str $program )`. For `<?target program?>`.
 * `xml:comment ( Str $comment-text )`. For `<!-- comment text -->`.
 * `xml:cdata ( Str $data )`. For `<[CDATA[ data ]]>`.
