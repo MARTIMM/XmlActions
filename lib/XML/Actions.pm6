@@ -24,22 +24,17 @@ state %element-errors = %();
   has Array $!parent-path;
 
   #-----------------------------------------------------------------------------
-  multi submethod BUILD ( Str :$file, Str :$xml ) {
-    die X::XML::Actions.new(
-      message => 'Cannot specify both :$file and :$xml!'
-    ) if $file.defined && $xml.defined;
+  multi submethod BUILD (Str :$file!) {
+    die X::XML::Actions.new(:message("File '$file' not found"))
+        unless $file.IO ~~ :r;
+    $!document = from-xml-file($file);
+  }
 
-    if $file.defined {
-      die X::XML::Actions.new(:message("File '$file' not found"))
-          unless $file.IO ~~ :r;
-      $!document = from-xml-file($file);
-    }
-
-    if $xml.defined {
-      die X::XML::Actions.new( :message('XML is empty!') )
-        unless $xml.trim.chars;
-      $!document = from-xml($xml);
-    }
+  #-----------------------------------------------------------------------------
+  multi submethod BUILD (Str :$xml!) {
+    die X::XML::Actions.new( :message('XML is empty!') )
+      unless $xml.trim.chars;
+    $!document = from-xml($xml);
   }
 
   #-----------------------------------------------------------------------------
