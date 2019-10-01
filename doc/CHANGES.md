@@ -1,5 +1,8 @@
+* 0.4.2 2019-10-01
+  * A named attribute :startend is added to `someElement:start()` in class XML::Actions::Stream. This might be easier to process than using a separate method `someElement:startend()`. It is a `Bool` which, when `True`, it encountered an element like **<someElement ... />** instead of **<someElement ... > ... </someElement>**.
+  * Removed some tests from XML::Actions::Stream to make processing quicker. Assumed is that large files generated elsewhere, are proper XML.
 * 0.4.1 2019-10-01
-  * PR added from Xlif to read XML from string.
+  * PR added from Xliff to read XML from string.
 * 0.4.0 2019-09-19
   * Add a module XML::Actions::Stream to process XML data while reading. It does not build a DOM tree like XML::Actions does.
 * 0.3.3 2019-09-16
