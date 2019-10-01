@@ -24,10 +24,17 @@ state %element-errors = %();
   has Array $!parent-path;
 
   #-----------------------------------------------------------------------------
-  multi submethod BUILD ( Str:D :$file! ) {
+  multi submethod BUILD (Str :$file!) {
     die X::XML::Actions.new(:message("File '$file' not found"))
         unless $file.IO ~~ :r;
     $!document = from-xml-file($file);
+  }
+
+  #-----------------------------------------------------------------------------
+  multi submethod BUILD (Str :$xml!) {
+    die X::XML::Actions.new( :message('XML is empty!') )
+      unless $xml.trim.chars;
+    $!document = from-xml($xml);
   }
 
   #-----------------------------------------------------------------------------
