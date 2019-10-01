@@ -86,6 +86,7 @@ If you want to process an element after all children are processed, you can use 
   ```
 And this one will also be changed into `someElement:end()`.
 So after version 0.5.0 the following methods can be called;
+
 * `xml:pi ( Str $target, Str $program )`. For `<?target program?>`.
 * `xml:comment ( Str $comment-text )`. For `<!-- comment text -->`.
 * `xml:cdata ( Str $data )`. For `<[CDATA[ data ]]>`.
@@ -101,14 +102,17 @@ When you have to process a large file (e.g. an XML file holding POI data of Turk
 
 ### User definable  methods
 The user can define the methods in a class which inherits from XML::Actions::Stream::Work. The methods which the user may define are;
+
 * `xml:prolog ( *%prolog-attributes )`. Found only at start of document. It might have attributes version, encoding and/or standalone.
 * `xml:doctype ( *%doctype-attributes )`. Found only at start of document. It might have an internal or external DTD. The arguments can be: `Str :$dtd`, `Str :$url`, `Bool :$empty`, `Bool: $public`, `Bool: $system`, `Str :$fpi`. \$empty is True when there is no DTD, SYSTEM or PUBLIC defined. \$fpi (Formal Public Identifier) should be defined when \$public is True. \$url should be defined when \$system is True but doesn't have to be defined if \$public is True.
+
 * `xml:pi ( Str $target, Str $program )`. For `<?target program?>`.
 * `xml:comment ( Str $comment-text )`. For `<!-- comment text -->`.
 * `xml:cdata ( Str $data )`. For `<[CDATA[ data ]]>`.
 * `xml:text ( Str $text )`. All text as content of an element.
 
 * `someElement:startend ( Array $parent-path, *%element-attributes )`. This method is called just before someElement:start() is called, just to show that there will be no call to someElement:end. In other words, there is no element content.
+
 * `someElement:start ( Array $parent-path, *%element-attributes )`
 * `someElement:end ( Array $parent-path, *%element-attributes )`
 
