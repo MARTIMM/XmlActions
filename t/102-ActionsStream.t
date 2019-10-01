@@ -71,11 +71,12 @@ class A is XML::Actions::Stream::Work {
     is $parent-path[*-1].key, 'scxml', 'end of scxml';
   }
 
-  method log:start ( Array $parent-path, :$expr ) {
+  method log:start ( Array $parent-path, :$startend, :$expr ) {
     is $expr, "'hello world'", "log called: expr = $expr";
     is-deeply @$parent-path.map(*.key), <scxml final onentry log>,
               "<scxml final onentry log> found in parent array";
 
+    ok $startend, '<log .../>';
     $!log-done = True;
   }
 
