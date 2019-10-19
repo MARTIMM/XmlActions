@@ -98,7 +98,7 @@ So after version 0.5.0 the following methods can be called;
 The other methods will get a deprecation message until version 0.5.0.
 
 ## Large files
-When you have to process a large file (e.g. an XML file holding POI data of Turkey from osm planet is about 6.2 Gb), one cannot use the `XML::Actions` module because the DOM tree is build in memory. Since version 0.4.0 the package is extended with module `XML::Actions::Stream` which eats the file in chunks of 64 Kb and chops it up into parsable parts. There is no check on proper xml yet. You can use other tools for that. There are a few more methods possible to define by the user. The arguments to the methods are the same but the first argument, which is an array, has other items.
+When you have to process a large file (e.g. an XML file holding POI data of Turkey from osm planet is about 6.2 Gb), one cannot use the `XML::Actions` module because the DOM tree is build in memory. Since version 0.4.0 the package is extended with module `XML::Actions::Stream` which eats the file in chunks of 128 Kb and chops it up into parsable parts. There will be no check on proper XML because it will slow it down too much. You can use other tools for that. There are a few more methods possible to be defined by the user. The arguments to the methods are the same but the first argument, which is an array, has other type of elements.
 
 ### User definable  methods
 The user can define the methods in a class which inherits from XML::Actions::Stream::Work. The methods which the user may define are;
