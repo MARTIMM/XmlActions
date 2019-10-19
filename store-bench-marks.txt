@@ -1,0 +1,4 @@
+rakudo-2019.07.1.446.g.2.eca.09.a.74, XML::Actions::Stream-process-bench-it.pl6, 0.07511408, 0.0002894, 0.09263488, 100, 13.313083246177014, 
+rakudo-2019.07.1.446.g.2.eca.09.a.74, XML::Actions::Stream-process-bench-it.pl6, 0.07215028, 0.00027233, 0.09024926, 100, 13.859960072227024, 
+rakudo-2019.07.1.446.g.2.eca.09.a.74, XML::Actions::Stream-process-bench-it.pl6, 0.05357232, 0.00024889, 0.06123526, 100, 18.666356058501854, 
+rakudo-2019.07.1.446.g.2.eca.09.a.74, XML::Actions-process-bench-it.pl6, 0.03900346, 0.00034892, 0.04073706, 100, 25.638751023627137, 
