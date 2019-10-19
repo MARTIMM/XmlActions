@@ -30,14 +30,10 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
   #-----------------------------------------------------------------------------
   multi method process ( XML::Actions::Stream::Work:D :$!actions! ) {
 
-    # a DOCTYPE, comments, PI or CDATA can contain other '<' or '>' which are
-    # not interpreted as normal element items. For these we must gather the
-    # data until the end of the element.
-    my Bool $in-cdata = False;    # look for ']]>' when True
-    my Bool $in-comment = False;  # look for '-->'
-    my Bool $in-pi = False;       # look for '?>'
+    # a DOCTYPE can have a DTDF inside with element like entries. For this
+    # we must gather the data until the end of the element.
     my Int $in-doctype = 0;       # look for '>' if 1
-                                  # look for ']>' if 2
+                                  # look for ']>' if 2, it has DTD
     my Bool $in-element = False;  # look for '>'
     my Bool $in-text = True;      # assume w're out of any type of element
 
@@ -46,16 +42,15 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
 
 
     # read the xml text and deliver lines of
-    # - start or end element
-    # - special xml types like <?xml ...?>, <?pi...?>, <!--comment --> etc
+    # - special xml type <!DOCTYPE ...> can have a DTD and element like entries
+    # - start or end element with special type elements
     # - plain text
     my Str $buffer = '';
 
     my Channel $parsable-lines-channel .= new;
     my Promise $read-file .= start( {
-#        my Proc $p = run 'cat', $!file, :out;
         my $handle = $!file.IO.open(:mode<ro>);
-        while my Str $char-block = $handle.readchars {
+        while my Str $char-block = $handle.readchars(131072) {
 
           my Int $index;
           my Bool $need-more = False;
@@ -65,50 +60,12 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
           # character is not found i.e. $index == undefined. If not, there
           # is still something left in the buffer to process.
           while !$need-more {
-      #note "Flgs0: $in-element, $in-cdata, $in-comment, $in-pi, $in-doctype";
-      #note "NM: $need-more, {$index//'-'}, $buffer";
-
-            # <[CDATA[ ... ]]>
-            if $in-cdata {
-              $index = $buffer.index(']]>');
-              if $index.defined {
-                $in-cdata = False;
-      #            take $buffer.substr( 0, $index + 3);
-                $parsable-lines-channel.send($buffer.substr( 0, $index + 3));
-      #note "Take E0: ", $buffer.substr( 0, $index + 3);
-                $buffer .= substr($index + 3);
-              }
-            }
-
-            # <!-- ... -->
-            elsif $in-comment {
-              $index = $buffer.index('-->');
-              if $index.defined {
-                $in-comment = False;
-      #            take $buffer.substr( 0, $index + 3);
-                $parsable-lines-channel.send($buffer.substr( 0, $index + 3));
-      #note "Take E1: ", $buffer.substr( 0, $index + 3);
-                $buffer .= substr($index + 3);
-              }
-            }
-
-            # <?... ... ?> Also pick up the document prolog
-            elsif $in-pi {
-              $index = $buffer.index('?>');
-              if $index.defined {
-                $in-pi = False;
-      #            take $buffer.substr( 0, $index + 2);
-                $parsable-lines-channel.send($buffer.substr( 0, $index + 2));
-      #note "Take E2: ", $buffer.substr( 0, $index + 2);
-                $buffer .= substr($index + 2);
-              }
-            }
 
             # <!DOCTYPE ... >
-            elsif $in-doctype == 1 {
+            if $in-doctype == 1 {
               $index = $buffer.index('>');
               my $index-dtd = $buffer.index('[');
-      #note "DT: {$index//'-'}, {$index-dtd//'-'}";
+
               # when both defined check for relation, there could
               # be e.g CDATA further down the doc written on one line
               if $index-dtd.defined and $index.defined and
@@ -127,9 +84,7 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
               # else still doctype == 1
               elsif $index.defined {
                 $in-doctype = 0;
-      #            take $buffer.substr( 0, $index + 1);
                 $parsable-lines-channel.send($buffer.substr( 0, $index + 1));
-      #note "Take E3: ", $buffer.substr( 0, $index + 1);
                 $buffer .= substr($index + 1);
               }
             }
@@ -139,9 +94,7 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
               $index = $buffer.index(']>');
               if $index.defined {
                 $in-doctype = 0;
-      #            take $buffer.substr( 0, $index + 2);
                 $parsable-lines-channel.send($buffer.substr( 0, $index + 2));
-      #note "Take E4: ", $buffer.substr( 0, $index + 2);
                 $buffer .= substr($index + 2);
               }
             }
@@ -151,10 +104,8 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
               $index = $buffer.index('>');
               if $index.defined {
                 $in-element = False;
-      #            take $buffer.substr( 0, $index + 1);
                 $parsable-lines-channel.send($buffer.substr( 0, $index + 1));
                 $buffer .= substr($index + 1);
-      #note "Take E5: ", $index//'-', ', ', $buffer.substr( 0, $index + 1);
               }
             }
 
@@ -165,9 +116,7 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
               # if undefined, we need more. if 0, no text.
               if ?$index {
                 $in-text = False;
-      #            take $buffer.substr( 0, $index);
                 $parsable-lines-channel.send($buffer.substr( 0, $index));
-      #note "Take E6: ", $index//'-', ', ', $buffer.substr( 0, $index);
                 $buffer .= substr($index);
               }
 
@@ -182,18 +131,6 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
                 $in-doctype = 1;
               }
 
-              elsif ($index = $buffer.index('<?')).defined and $index == 0 {
-                $in-pi = True;
-              }
-
-              elsif ($index = $buffer.index('<!--')).defined and $index == 0 {
-                $in-comment = True;
-              }
-
-              elsif ($index = $buffer.index('<[CDATA[')).defined and $index == 0 {
-                $in-cdata = True;
-              }
-
               elsif ($index = $buffer.index('<')).defined and $index == 0 {
                 $in-element = True;
               }
@@ -201,22 +138,9 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
               else {
                 $in-text = True;
               }
-
-      #note "Flgs1: $in-element, $in-cdata, $in-comment, $in-pi, $in-doctype";
-      #`{{
-              $index = $buffer.index('>');
-              if $index.defined {
-                $in-element = False;
-                take $buffer.substr( 0, $index + 1);
-      #note "Take E2: ", $buffer.substr( 0, $index + 1);
-                $buffer .= substr($index + 1);
-              }
-      }}
             }
 
             $need-more = True unless $index.defined;
-
-      #note "Size: $need-more, $buffer.chars()";
           }
         }
 
@@ -226,41 +150,26 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
 
         # send a finishing touch. this line is illegal xml so it cannot happen
         $parsable-lines-channel.send('<<__:FINISHED:__>>');
-#        $p.out.close;
-#        $handle.close;
-#        $parsable-lines-channel.close;
-      }
 
-    );
+      } # End block
+    );  # end Promise
 
     self.parse-parts($parsable-lines-channel);
-
   }
 
   #-----------------------------------------------------------------------------
-#  method parse-parts ( Seq $parsable-lines ) {
   method parse-parts ( Channel $parsable-lines-channel ) {
 
     $!parent-path = [];
-#    $!prolog-passed = $!doctype-passed = False;
     while $parsable-lines-channel.receive -> $line {
 #note "L: $line";
       last if $line eq '<<__:FINISHED:__>>';
 
       my $match = XML::Actions::Stream::XmlNode.parse( $line, :rule<Xml>);
-      if !$match.defined {
-#        $match = XML::Actions::Stream::XmlNode.subparse( $line, :rule<Xml>);
-#note "Me1: ", ~$match;
-#note "Me2: ", $match.perl;
-        die X::XML::Actions::Stream.new(:message("Parsing error: '$line'"));
-      }
-#note "M1: ", ~$match;
-#note "M2: ", $match;
+      die X::XML::Actions::Stream.new(:message("Parsing error: '$line'"))
+        unless $match.defined;
 
       if $match<prolog> {
-#        die X::XML::Actions::Stream.new(
-#          :message("Second prolog forbidden or at wrong place")
-#        ) if $!prolog-passed;
 
 #note "prolog: ", ~$match<prolog><xml-name>;
 #note "attrs: ", self.get-attributes($match<prolog><attr-list>);
