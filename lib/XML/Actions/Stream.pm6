@@ -164,6 +164,110 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
       die X::XML::Actions::Stream.new(:message("Parsing error: '$line'"))
         unless $match.defined;
 
+      my $m;
+
+      if $match<next-part-of-tag>:exists {
+        given $match<next-part-of-tag> {
+          when $_<type1-elements><doctype>:exists {
+            if $!actions.^can('xml:doctype') {
+              $m = $_<type1-elements><doctype>;
+
+              # empty is meant to show if there is a dtd, system-dtd or
+              # public-dtd (False) or otherwise empty (True)
+              my %attributes = %(
+                :!empty,
+                :root-element(~$m<root-element>)
+              );
+
+              my Match $chk;
+              if ?($chk = $m<system-dtd>) {
+                %attributes<system> = True;
+                %attributes<dtd> = ~$chk<dtd> if ?$chk<dtd>;
+                %attributes<url> = ~$chk<url><text> if ?$chk<url>;
+              }
+
+              elsif ?($chk = $m<public-dtd>) {
+                %attributes<public> = True;
+                %attributes<fpi> = ~$chk<fpi><text> if ?$chk<fpi>;
+                %attributes<dtd> = ~$chk<dtd> if ?$chk<dtd>;
+                %attributes<url> = ~$chk<url><text> if ?$chk<url>;
+              }
+
+              elsif ?($chk = $m<dtd>) {
+                %attributes<dtd> = ~$chk;
+              }
+
+              else {
+                %attributes<empty> = True;
+              }
+
+#note "Attrs: ", %attributes;
+
+              $!actions."xml:doctype"(|%attributes);
+            }
+          }
+
+          when $_<type1-elements><comment>:exists {
+            $!actions.?"xml:comment"(
+              $!parent-path, ~$_<type1-elements><comment><text>
+            );
+          }
+
+          # <?xml version='...' standalone='...' ?>
+          when $_<type2-elements><prolog>:exists {
+            if $!actions.^can('xml:prolog') {
+              $!actions."xml:prolog"(
+                |(self.get-attributes($_<type2-elements><prolog><attr-list>))
+              );
+            }
+          }
+
+          when $_<type2-elements><pi>:exists {
+            $!actions.?"xml:pi"(
+              $!parent-path,
+              ~$_<type2-elements><pi><target>,
+              ~$_<type2-elements><pi><program>
+            );
+          }
+
+          when $_<type3-elements><cdata>:exists {
+            $!actions.?"xml:cdata"(
+              $!parent-path, ~$_<type3-elements><cdata><data>
+            );
+          }
+
+          when $_<end-element>:exists {
+            $m = $_<end-element>;
+            if $!actions.^can(my $mname = ~$m<xml-name> ~ ':end') {
+              $!actions."$mname"(
+                $!parent-path, |$!parent-path[*-1]{~$m<xml-name>}
+              );
+            }
+
+            $!parent-path.pop;
+          }
+
+          when $_<element>:exists {
+            $m = $_<element>;
+            my Str $name = ~$m<xml-name>;
+            my %attribs = self.get-attributes($m<attr-list>);
+            $!parent-path.push: $name => %attribs;
+
+            if $!actions.^can(my $mname = $name ~ ':start') {
+              my Bool $startend = ~$m<start-end> eq '/>';
+              $!actions."$mname"( $!parent-path, :$startend, |%attribs);
+            }
+
+            $!parent-path.pop if ~$m<start-end> eq '/>';
+          }
+        }
+      }
+
+      elsif $match<text>:exists {
+        $!actions.?"xml:text"( $!parent-path, ~$match<text>);
+      }
+
+#`{{
       if $match<prolog> {
 
 #note "prolog: ", ~$match<prolog><xml-name>;
@@ -275,6 +379,7 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
           $!actions."xml:text"( $!parent-path, ~$match<text>);
         }
       }
+}}
     }
   }
 
