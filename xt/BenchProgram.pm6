@@ -137,7 +137,7 @@ method test-data1 ( --> Hash ) {
   %( :class-name<XML::Actions::Stream>,
      :sub-name<process>,
      :version<0.4.3>,
-     :note('Change in detecting start of element'),
+     :note('Modified grammar'),
   )
 }
 
