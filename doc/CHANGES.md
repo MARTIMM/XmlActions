@@ -1,5 +1,8 @@
+* 0.4.5 2019-10-20
+  * Modified grammar for XML::Actions::Stream to improve speed a bit.
+
 * 0.4.4 2019-10-20
-  * Removed calls to `someElement:startend()` to improve speed a bit.
+  * Removed calls to `someElement:startend()` from XML::Actions::Stream to improve speed a bit.
 
 * 0.4.3 2019-10-19
   * Some changes in XML::Actions::Stream to get the speed somewhat higher
