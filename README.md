@@ -111,9 +111,8 @@ The user can define the methods in a class which inherits from XML::Actions::Str
 * `xml:cdata ( Str $data )`. For `<[CDATA[ data ]]>`.
 * `xml:text ( Str $text )`. All text as content of an element.
 
-* `someElement:startend ( Array $parent-path, *%element-attributes )`. This method is called just before someElement:start() is called, just to show that there will be no call to someElement:end. In other words, there is no element content.
+* `someElement:start ( Array $parent-path, Bool :$startend, *%element-attributes )`. The alternative `someElement:startend()` is removed to speedup the process. Instead a named argument is added. When True there is no content in this element.
 
-* `someElement:start ( Array $parent-path, *%element-attributes )`
 * `someElement:end ( Array $parent-path, *%element-attributes )`
 
 The array is a list of pairs. The key of each pair is the element name and the value is a hash of its attributes. Entry \$parent-path[\*-1] is the currently called element, so its parent is at \*-2. The root element is at 0 and is always available.

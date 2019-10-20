@@ -1,9 +1,12 @@
+* 0.4.4 2019-10-20
+  * Removed calls to `someElement:startend()` to improve speed a bit.
+
 * 0.4.3 2019-10-19
   * Some changes in XML::Actions::Stream to get the speed somewhat higher
 
 * 0.4.2 2019-10-01
   * A named attribute :startend is added to `someElement:start()` in class XML::Actions::Stream. This might be easier to process than using a separate method `someElement:startend()`. It is a `Bool` which, when `True`, it encountered an element like **<someElement ... />** instead of **<someElement ... > ... </someElement>**.
-  
+
   * Removed some tests from XML::Actions::Stream to make processing quicker. Assumed is that large files generated elsewhere, are proper XML.
 * 0.4.1 2019-10-01
   * PR added from Xliff to read XML from string.
