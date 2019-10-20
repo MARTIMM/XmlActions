@@ -18,11 +18,6 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
   has Str $!file;
   has XML::Actions::Stream::Work $!actions;
   has Array $!parent-path;
-#  has Str $!root-element;
-
-#  has Bool $!prolog-passed;   # only once at 1st line of doc
-#  has Bool $!doctype-passed;  # only once at 1st or 2nd line of doc
-#  has Bool $!elements-seen = False;
 
   #-----------------------------------------------------------------------------
   submethod BUILD ( Str:D :$!file! ) { }
@@ -179,19 +174,9 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
             |(self.get-attributes($match<prolog><attr-list>))
           );
         }
-
-#        $!prolog-passed = True;
       }
 
       elsif $match<doctype> {
-#        die X::XML::Actions::Stream.new(:message("Doctype at wrong place"))
-#          if $!elements-seen and !$!doctype-passed;
-
-#        die X::XML::Actions::Stream.new(:message("Second doctype forbidden"))
-#          if $!doctype-passed;
-
-#        $!root-element = ~$match<doctype><root-element>;
-#        my %attributes = %( :!empty, :$!root-element);
         my %attributes = %(
           :!empty,
           :root-element(~$match<doctype><root-element>)
@@ -224,31 +209,23 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
         if $!actions.^can('xml:doctype') {
           $!actions."xml:doctype"(|%attributes);
         }
-
-#        $!doctype-passed = True;
       }
 
       elsif $match<element-tag> {
         my Str $name = ~$match<element-tag><xml-name>;
-#        die X::XML::Actions::Stream.new(
-#          :message("root element $name is not $!root-element from DTD")
-#        ) if $!parent-path.elems == 0 and
-#             ?$!root-element and $!root-element ne $name;
-
-#        $!elements-seen = True;
-
         my %attribs = self.get-attributes($match<element-tag><attr-list>);
         $!parent-path.push: $name => %attribs;
 
         my Str $mname;
         my Bool $startend = ~$match<element-tag><start-end> eq '/>';
+#`{{
         if $startend {
           # show that next statement has no content
           if $!actions.^can($mname = $name ~ ':startend') {
             $!actions."$mname"( $!parent-path, |%attribs);
           }
         }
-
+}}
         if $!actions.^can($mname = $name ~ ':start') {
           $!actions."$mname"( $!parent-path, :$startend, |%attribs);
         }
@@ -274,11 +251,6 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
       }
 
       elsif $match<pi> {
-#        note "pi: ", ~$match<pi><target>, "\n", ~$match<pi><program>;
-#        die X::XML::Actions::Stream.new(
-#          :message("Processing instructions only in elements")
-#        ) if !$!elements-seen;
-
         if $!actions.^can('xml:pi') {
           $!actions."xml:pi"(
             $!parent-path, ~$match<pi><target>, ~$match<pi><program>
@@ -287,45 +259,22 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
       }
 
       elsif $match<comment> {
-#        note "comment: ", ~$match<comment><text>;
-
         if $!actions.^can('xml:comment') {
           $!actions."xml:comment"( $!parent-path, ~$match<comment><text>);
         }
       }
 
       elsif $match<cdata> {
-#        note "cdata: ", ~$match<cdata><data>;
-#        die X::XML::Actions::Stream.new(
-#          :message("cdata only in elements")
-#        ) if !$!elements-seen;
-
         if $!actions.^can('xml:cdata') {
           $!actions."xml:cdata"( $!parent-path, ~$match<cdata><data>);
         }
       }
 
       elsif $match<text> {
-#        note "Text: ", ~$match<text>;
-
         if $!actions.^can('xml:text') {
           $!actions."xml:text"( $!parent-path, ~$match<text>);
         }
       }
-
-#      else {
-#note "No match";
-#      }
-
-      # If anything is processed a prolog cannot happen anymore
-#      $!prolog-passed = True;
-
-#note "  A: ", $match<attr-list><attr>;
-
-#      for @($match<attr-list>.caps) -> $attr {
-#note "  A: ", ~$attr<xml-name>[0], ' => ', ~$attr<attr-value>[0];
-#      }
-
     }
   }
 

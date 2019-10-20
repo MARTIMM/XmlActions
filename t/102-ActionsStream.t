@@ -33,7 +33,6 @@ $file.IO.spurt(Q:q:to/EOXML/);
 class A is XML::Actions::Stream::Work {
 
   has Bool $.log-done = False;
-  has Bool $.startend = False;
   has Bool $.prolog = False;
   has Bool $.doctype = False;
 
@@ -79,26 +78,7 @@ class A is XML::Actions::Stream::Work {
     ok $startend, '<log .../>';
     $!log-done = True;
   }
-
-  method log:startend ( Array $parent-path, :$expr ) {
-    $!startend = True;
-  }
 }
-
-#`{{
-#-------------------------------------------------------------------------------
-subtest 'Action primitives', {
-  my XML::Actions $a;
-
-  throws-like
-    { $a .= new(:file<non-existent-file>); },
-    X::XML::Actions, message => "File 'non-existent-file' not found";
-
-  throws-like
-    { $a .= new(); $a.process(:actions(A.new())); },
-    X::XML::Actions, message => "No xml document to work on";
-}
-}}
 
 #-------------------------------------------------------------------------------
 subtest 'Action object', {
@@ -110,12 +90,6 @@ subtest 'Action object', {
   ok $w.prolog, 'prolog seen';
   ok $w.doctype, 'doctype seen';
   ok $w.log-done, 'logging done';
-  ok $w.startend, 'selfclosing seen';
-
-#`{{ Cannot compare comlete string because attribs may change order
-  note $a.result;
-  is $a.result, '<?xml version="1.0"?><scxml xmlns="http://www.w3.org/2005/07/scxml" initial="hello" version="1.0"> <final id="hello"> <onentry> <log expr="&#39;hello world&#39;"/>  </onentry>  </final>  </scxml>', 'returned result ok';
-}}
 }
 
 #-------------------------------------------------------------------------------
