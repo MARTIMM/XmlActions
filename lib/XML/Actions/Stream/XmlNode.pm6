@@ -60,8 +60,8 @@ rule attr-list { [ <attr> ]* }
 rule attr { <xml-name> '=' <string> }
 
 token string {
-  [ <["]> $<text> = [<-["]>+] <["]> ||
-    <[']> $<text> = [<-[']>+] <[']>
+  [ <["]> $<text> = [<-["]>*] <["]> ||
+    <[']> $<text> = [<-[']>*] <[']>
   ]
 }
 
