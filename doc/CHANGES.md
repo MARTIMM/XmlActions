@@ -1,3 +1,6 @@
+* 0.4.6 2019-10-22
+  * XML::Actions::Stream::XmlNode Grammar bugfix; Attribute values may have empty strings
+
 * 0.4.5 2019-10-20
   * Modified grammar for XML::Actions::Stream to improve speed a bit.
 
