@@ -1,6 +1,7 @@
 use v6;
 
 use XML;
+#use HTML::Parser::XML;
 
 #-------------------------------------------------------------------------------
 class X::XML::Actions:auth<github:MARTIMM> is Exception {
@@ -27,6 +28,7 @@ state %element-errors = %();
   multi submethod BUILD (Str :$file!) {
     die X::XML::Actions.new(:message("File '$file' not found"))
         unless $file.IO ~~ :r;
+
     $!document = from-xml-file($file);
   }
 
@@ -36,6 +38,16 @@ state %element-errors = %();
       unless $xml.trim.chars;
     $!document = from-xml($xml);
   }
+
+#`{{
+  #-----------------------------------------------------------------------------
+  multi submethod BUILD (Str :$html!) {
+    die X::XML::Actions.new( :message('XML is empty!') )
+      unless $html.trim.chars;
+    my $parser = HTML::Parser::XML.new;
+    $!document = $parser.parse($html);
+  }
+}}
 
   #-----------------------------------------------------------------------------
   multi submethod BUILD ( XML::Document:D :$!document! ) { }
@@ -166,8 +178,8 @@ state %element-errors = %();
     my %attribs = $node.attribs;
 
     my Str $start-node = $name ~ ":start";
-    if $!actions.^can($name ~ ':start') {
-      $!actions."{$name}:start"( $!parent-path, |%attribs);
+    if $!actions.^can($start-node) {
+      $!actions."$start-node"( $!parent-path, |%attribs);
     }
 
 
