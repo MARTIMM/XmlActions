@@ -1,3 +1,7 @@
+<!--
+* 0.4.7 2020-07-08
+  * Added the possibility to process html files which are parsed by **HTML::Parser::XML**.
+-->
 * 0.4.6 2019-10-22
   * XML::Actions::Stream::XmlNode Grammar bugfix; Attribute values may have empty strings
 

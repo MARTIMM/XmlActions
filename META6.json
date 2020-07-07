@@ -1,15 +1,15 @@
 {
   "name": "XML::Actions",
   "description": "Perform actions on all XML nodes",
-  "version": "0.4.6",
+  "version": "0.4.6.1",
   "license": "Artistic-2.0",
   "tags": [ "XML", "actions", "streaming", "stream"],
   "perl": "6",
   "authors": [ "Marcel Timmerman"],
   "depends": [
-    "XML"
+    "XML", "HTML::Parser::XML"
   ],
-  "test-depends": [ "Test::META" ],
+  "test-depends": [ ],
   "build-depends": [ ],
   "provides": {
     "XML::Actions": "lib/XML/Actions.pm6",
