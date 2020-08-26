@@ -1,7 +1,7 @@
 {
   "name": "XML::Actions",
   "description": "Perform actions on all XML nodes",
-  "version": "0.4.6.1",
+  "version": "0.4.6.2",
   "license": "Artistic-2.0",
   "tags": [ "XML", "actions", "streaming", "stream"],
   "perl": "6",
