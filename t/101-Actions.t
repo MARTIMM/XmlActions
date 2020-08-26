@@ -9,14 +9,14 @@ mkdir $dir unless $dir.IO ~~ :e;
 
 my Str $file = "$dir/a.xml";
 $file.IO.spurt(Q:q:to/EOXML/);
-  <complexType name="ShipsFromType">
+  <complexType name="ShipsFromType" xmlns:xyz="http://example.com">
     <all>
       tada1
-      <xyz:element name="State" type="string" minOccurs="0">
+      <xyz:element xyz:name="State" xyz:type="string" minOccurs="0">
         xyz
       </xyz:element>
       tadaaaa2
-      <xyz:element name="Country" type="string" minOccurs="0"/>
+      <xyz:element xyz:name="Country" xyz:type="string" minOccurs="0"/>
     </all>
   </complexType>
   EOXML
@@ -46,9 +46,10 @@ class A is XML::Actions::Work {
     is $parent-path[*-1].name, 'complexType', '</complexType>';
   }
 
-  method xyz:element:start ( Array $parent-path ) {
+  method xyz:element:start ( Array $parent-path, :$minOccurs, :$xyz, *%attribs ) {
     is $parent-path[*-1].name, 'xyz:element', 'start ' ~ $parent-path[*-1].name;
-#note "xyz:element; '", $parent-path[*-1].contents.join("', '"), "'";
+    is %attribs<xyz:name>, any(<State Country>), 'attribute xyz:name';
+    is $minOccurs, 0, 'attribute minOccurs';
   }
 
   method xyz:element:end ( Array $parent-path ) {
