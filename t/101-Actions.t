@@ -1,4 +1,3 @@
-use v6;
 
 use XML::Actions;
 use Test;
@@ -25,24 +24,22 @@ $file.IO.spurt(Q:q:to/EOXML/);
 class A is XML::Actions::Work {
   has Bool $.all-seen = False;
 
-  method complexType ( Array $parent-path, :$name ) {
+  method complexType:start ( Array $parent-path, :$name ) {
     is $parent-path[*-1].name, 'complexType',
       ([~] "<", $parent-path[*-1].name, " name='$name'>");
-#note "complexType; '", $parent-path[*-1].contents.join("', '"), "'";
   }
 
   method all:start ( Array $parent-path, :$name ) {
     is $parent-path[*-1].name, 'all', '<all>';
     $!all-seen = True;
-#for $parent-path[*-1].contents -> $txt { say "'$txt'"; }
   }
 
-  method all-END ( Array $parent-path, :$name ) {
+  method all:end ( Array $parent-path, :$name ) {
     is $parent-path[*-1].name, 'all', '</all>';
     $!all-seen = True;
   }
 
-  method complexType-END ( Array $parent-path ) {
+  method complexType:end ( Array $parent-path ) {
     is $parent-path[*-1].name, 'complexType', '</complexType>';
   }
 
@@ -60,7 +57,6 @@ class A is XML::Actions::Work {
     next if $text ~~ m/^ \s* $/;
     $text ~~ s/^ \s+ //;
     $text ~~ s/ \s+ $//;
-#note 'PP: ', $parent-path[*-1].name, ', ', $text;
   }
 }
 

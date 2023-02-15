@@ -17,8 +17,8 @@ class XML::Actions::Work:auth<github:MARTIMM> { }
 #-------------------------------------------------------------------------------
 class XML::Actions:auth<github:MARTIMM> {
 
-# temp gather element names to see if already a message is printed
-state %element-errors = %();
+  # temp gather element names to see if already a message is printed
+  state %element-errors = %();
 
   has XML::Document $!document;
   has $!actions;
@@ -112,13 +112,13 @@ state %element-errors = %();
           $!actions.'xml:text'( $!parent-path, $node.text());
         }
 
-        elsif $!actions.^can('PROCESS-TEXT') {
-  note "method call to PROCESS-TEXT\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:text\() instead"
-    unless %element-errors{'PROCESS-TEXT'};
-
-  %element-errors{'PROCESS-TEXT'} //= True;
-          $!actions.PROCESS-TEXT( $!parent-path, $node.text());
-        }
+#        elsif $!actions.^can('PROCESS-TEXT') {
+#  note "method call to PROCESS-TEXT\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:text\() instead"
+#    unless %element-errors{'PROCESS-TEXT'};
+#
+#  %element-errors{'PROCESS-TEXT'} //= True;
+#          $!actions.PROCESS-TEXT( $!parent-path, $node.text());
+#        }
       }
 
       when XML::Comment {
@@ -126,13 +126,13 @@ state %element-errors = %();
           $!actions.'xml:comment'( $!parent-path, $node.data());
         }
 
-        elsif $!actions.^can('PROCESS-COMMENT') {
-          $!actions.PROCESS-COMMENT( $!parent-path, $node.data());
-  note "method call to PROCESS-COMMENT\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:comment\() instead"
-    unless %element-errors{'PROCESS-COMMENT'};
-
-  %element-errors{'PROCESS-COMMENT'} //= True;
-        }
+#        elsif $!actions.^can('PROCESS-COMMENT') {
+#          $!actions.PROCESS-COMMENT( $!parent-path, $node.data());
+#  note "method call to PROCESS-COMMENT\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:comment\() instead"
+#    unless %element-errors{'PROCESS-COMMENT'};
+#
+#  %element-errors{'PROCESS-COMMENT'} //= True;
+#        }
       }
 
       when XML::CDATA {
@@ -140,13 +140,13 @@ state %element-errors = %();
           $!actions.'xml:cdata'( $!parent-path, $node.data());
         }
 
-        elsif $!actions.^can('PROCESS-CDATA') {
-          $!actions.PROCESS-CDATA( $!parent-path, $node.data());
-  note "method call to PROCESS-CDATA\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:cdata\() instead"
-    unless %element-errors{'PROCESS-CDATA'};
-
-  %element-errors{'PROCESS-CDATA'} //= True;
-        }
+#        elsif $!actions.^can('PROCESS-CDATA') {
+#          $!actions.PROCESS-CDATA( $!parent-path, $node.data());
+#  note "method call to PROCESS-CDATA\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:cdata\() instead"
+#    unless %element-errors{'PROCESS-CDATA'};
+#
+#  %element-errors{'PROCESS-CDATA'} //= True;
+#        }
       }
 
       when XML::PI {
@@ -157,16 +157,16 @@ state %element-errors = %();
           $!actions.'xml:pi'( $!parent-path, $target, $content);
         }
 
-        elsif $!actions.^can('PROCESS-PI') {
-          my Str $target;
-          my Str $content;
-          ( $target, $content) = $node.data().split( ' ', 2);
-  note "method call to PROCESS-PI\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:pi\() instead"
-    unless %element-errors{'PROCESS-PI'};
-
-  %element-errors{'PROCESS-PI'} //= True;
-          $!actions.PROCESS-PI( $!parent-path, $target, $content);
-        }
+#        elsif $!actions.^can('PROCESS-PI') {
+#          my Str $target;
+#          my Str $content;
+#          ( $target, $content) = $node.data().split( ' ', 2);
+#  note "method call to PROCESS-PI\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:pi\() instead"
+#    unless %element-errors{'PROCESS-PI'};
+#
+#  %element-errors{'PROCESS-PI'} //= True;
+#          $!actions.PROCESS-PI( $!parent-path, $target, $content);
+#        }
       }
     }
   }
@@ -184,17 +184,16 @@ state %element-errors = %();
 
 
 # remove after version 0.5.0
-elsif $!actions.^can($name) {
-  note "method call to $name\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide $start-node\() instead"
-    unless %element-errors{$name};
-
-  %element-errors{$name} //= True;
-
-  $!actions."$name"( $!parent-path, |%attribs);
-}
+#elsif $!actions.^can($name) {
+#  note "method call to $name\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide $start-node\() instead"
+#    unless %element-errors{$name};
+#
+#  %element-errors{$name} //= True;
+#
+#  $!actions."$name"( $!parent-path, |%attribs);
+#}
 
   }
-
 
   #-----------------------------------------------------------------------------
   method !check-end-node-action ( $node ) {
@@ -208,13 +207,13 @@ elsif $!actions.^can($name) {
     }
 
 # remove after version 0.5.0
-elsif $!actions.^can($name ~ '-END') {
-  note "method call to {$name}-END\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide $end-node\() instead"
-    unless %element-errors{$name ~ '-END'};
-
-  %element-errors{$name ~ '-END'} //= True;
-
-  $!actions."{$name}-END"( $!parent-path, |%attribs);
-}
+#elsif $!actions.^can($name ~ '-END') {
+#  note "method call to {$name}-END\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide $end-node\() instead"
+#    unless %element-errors{$name ~ '-END'};
+#
+#  %element-errors{$name ~ '-END'} //= True;
+#
+#  $!actions."{$name}-END"( $!parent-path, |%attribs);
+#}
   }
 }

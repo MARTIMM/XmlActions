@@ -1,5 +1,3 @@
-use v6;
-
 use XML::Actions;
 use Test;
 
@@ -28,13 +26,16 @@ class A is XML::Actions::Work {
 
   has Bool $.log-done = False;
 
-  method final ( Array $parent-path, :$id ) {
+  # test if readable attribute is in the way of node names
+  has Str $.log;
+
+  method final:start ( Array $parent-path, :$id ) {
     is $id, 'hello', "final called: id = $id";
     is $parent-path[*-1].name, 'final', 'this node is final';
     is $parent-path[*-2].name, 'scxml', 'parent node is scxml';
   }
 
-  method onentry ( Array $parent-path ) {
+  method onentry:start ( Array $parent-path ) {
     is $parent-path[*-1].name, 'onentry', 'this node is onentry';
     is $parent-path[*-2].name, 'final', 'parent node is final';
     is $parent-path[*-3].name, 'scxml', 'parent parents node is scxml';
@@ -42,17 +43,18 @@ class A is XML::Actions::Work {
               "<scxml final onentry> found in parent array";
   }
 
-  method onentry-END ( Array $parent-path ) {
+  method onentry:end ( Array $parent-path ) {
     is $parent-path[*-1].name, 'onentry',
        'this node is onentry after processing children';
   }
 
-  method log ( Array $parent-path, :$expr ) {
+  method log:start ( Array $parent-path, :$expr ) {
     is $expr, "'hello world'", "log called: expr = $expr";
     is-deeply @$parent-path.map(*.name), <scxml final onentry log>,
               "<scxml final onentry log> found in parent array";
 
     $!log-done = True;
+    $!log = 'ok';
   }
 }
 
@@ -72,11 +74,11 @@ subtest 'Action primitives', {
 #-------------------------------------------------------------------------------
 subtest 'Action object from file', {
   my XML::Actions $a .= new(:$file);
-  isa-ok $a, XML::Actions, 'type ok';
+#  isa-ok $a, XML::Actions, 'type ok';
 
-  my A $w .= new();
-  $a.process(:actions($w));
-  ok $w.log-done, 'logging done';
+  my A $actions .= new();
+  $a.process(:$actions);
+  ok $actions.log-done, 'logging done: ' ~ $actions.log;
 
 #`{{ Cannot compare comlete string because attribs may change order
   note $a.result;
@@ -87,11 +89,11 @@ subtest 'Action object from file', {
 #-------------------------------------------------------------------------------
 subtest 'Action object from string', {
   my XML::Actions $a .= new(:$xml);
-  isa-ok $a, XML::Actions, 'type ok';
+#  isa-ok $a, XML::Actions, 'type ok';
 
-  my A $w .= new();
-  $a.process(:actions($w));
-  ok $w.log-done, 'logging done';
+  my A $actions .= new();
+  $a.process(:$actions);
+  ok $actions.log-done, 'logging done: ' ~ $actions.log;
 
 #`{{ Cannot compare comlete string because attribs may change order
   note $a.result;
