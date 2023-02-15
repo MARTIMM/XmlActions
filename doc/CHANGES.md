@@ -2,6 +2,9 @@
 * 0.4.7 2020-07-08
   * Added the possibility to process html files which are parsed by **HTML::Parser::XML**.
 -->
+* 0.5.0 2023-02-15
+  * Remove deprecated methods. I recently found a problem regarding readable attributes whithin an `XML::Actions::Work`. It is useful to store data there when an action method has found something and wants to store it there. Raku automatically generates methods to read the attribute. The problem is that when this attribute has the name of a xml node, it will be called with the wrong arguments.
+
 * 0.4.6 2019-10-22
   * XML::Actions::Stream::XmlNode Grammar bugfix; Attribute values may have empty strings
 
