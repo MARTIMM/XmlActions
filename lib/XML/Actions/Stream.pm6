@@ -42,7 +42,7 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
     # - plain text
     my Str $buffer = '';
 
-    my Channel $parsable-lines-channel .= new;
+    my Channel $parseble-lines-channel .= new;
     my Promise $read-file .= start( {
         my $handle = $!file.IO.open(:mode<ro>);
         while my Str $char-block = $handle.readchars(131072) {
@@ -79,7 +79,7 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
               # else still doctype == 1
               elsif $index.defined {
                 $in-doctype = 0;
-                $parsable-lines-channel.send($buffer.substr( 0, $index + 1));
+                $parseble-lines-channel.send($buffer.substr( 0, $index + 1));
                 $buffer .= substr($index + 1);
               }
             }
@@ -89,7 +89,7 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
               $index = $buffer.index(']>');
               if $index.defined {
                 $in-doctype = 0;
-                $parsable-lines-channel.send($buffer.substr( 0, $index + 2));
+                $parseble-lines-channel.send($buffer.substr( 0, $index + 2));
                 $buffer .= substr($index + 2);
               }
             }
@@ -99,7 +99,7 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
               $index = $buffer.index('>');
               if $index.defined {
                 $in-element = False;
-                $parsable-lines-channel.send($buffer.substr( 0, $index + 1));
+                $parseble-lines-channel.send($buffer.substr( 0, $index + 1));
                 $buffer .= substr($index + 1);
               }
             }
@@ -111,7 +111,7 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
               # if undefined, we need more. if 0, no text.
               if ?$index {
                 $in-text = False;
-                $parsable-lines-channel.send($buffer.substr( 0, $index));
+                $parseble-lines-channel.send($buffer.substr( 0, $index));
                 $buffer .= substr($index);
               }
 
@@ -141,22 +141,22 @@ class XML::Actions::Stream:auth<github:MARTIMM> {
 
         # rest of the buffer should be empty. if not, it should fail
         # in the matching process and not end here
-        $parsable-lines-channel.send($buffer) if $buffer.chars;
+        $parseble-lines-channel.send($buffer) if $buffer.chars;
 
         # send a finishing touch. this line is illegal xml so it cannot happen
-        $parsable-lines-channel.send('<<__:FINISHED:__>>');
+        $parseble-lines-channel.send('<<__:FINISHED:__>>');
 
       } # End block
     );  # end Promise
 
-    self.parse-parts($parsable-lines-channel);
+    self.parse-parts($parseble-lines-channel);
   }
 
   #-----------------------------------------------------------------------------
-  method parse-parts ( Channel $parsable-lines-channel ) {
+  method parse-parts ( Channel $parseble-lines-channel ) {
 
     $!parent-path = [];
-    while $parsable-lines-channel.receive -> $line {
+    while $parseble-lines-channel.receive -> $line {
 #note "L: $line";
       last if $line eq '<<__:FINISHED:__>>';
 
