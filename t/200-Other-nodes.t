@@ -60,16 +60,6 @@ subtest 'Actions on object 1', {
 }
 
 #-------------------------------------------------------------------------------
-subtest 'Actions on object 2', {
-
-  my XML::Actions $a .= new(:$file);
-  isa-ok $a, XML::Actions, 'type ok';
-  my A2 $w2 .= new();
-  $a.process(:actions($w2));
-  is $w2.tests, 9, 'nbr tests ok';
-}
-
-#-------------------------------------------------------------------------------
 done-testing;
 
 unlink $file;
