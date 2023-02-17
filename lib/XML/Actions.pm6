@@ -17,8 +17,11 @@ class XML::Actions::Work:auth<github:MARTIMM> { }
 #-------------------------------------------------------------------------------
 class XML::Actions:auth<github:MARTIMM> {
 
+  # possible action results on XML:Element action methods
+  enum ActionResult is export <Recurse Truncate>;
+
   # temp gather element names to see if already a message is printed
-  state %element-errors = %();
+#  state %element-errors = %();
 
   has XML::Document $!document;
   has $!actions;
@@ -101,8 +104,15 @@ class XML::Actions:auth<github:MARTIMM> {
     given $node {
       when XML::Element {
         $!parent-path.push($node);
-        self!check-action($node);
-        for $node.nodes -> $child { self!process-node($child); }
+        with self!check-action($node) {
+          when Recurse {
+            for $node.nodes -> $child { self!process-node($child); }
+          }
+
+          when Truncate {
+            note "$node.name() truncated";
+          }
+        }
         self!check-end-node-action($node);
         $!parent-path.pop;
       }
@@ -111,42 +121,18 @@ class XML::Actions:auth<github:MARTIMM> {
         if $!actions.^can('xml:text') {
           $!actions.'xml:text'( $!parent-path, $node.text());
         }
-
-#        elsif $!actions.^can('PROCESS-TEXT') {
-#  note "method call to PROCESS-TEXT\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:text\() instead"
-#    unless %element-errors{'PROCESS-TEXT'};
-#
-#  %element-errors{'PROCESS-TEXT'} //= True;
-#          $!actions.PROCESS-TEXT( $!parent-path, $node.text());
-#        }
       }
 
       when XML::Comment {
         if $!actions.^can('xml:comment') {
           $!actions.'xml:comment'( $!parent-path, $node.data());
         }
-
-#        elsif $!actions.^can('PROCESS-COMMENT') {
-#          $!actions.PROCESS-COMMENT( $!parent-path, $node.data());
-#  note "method call to PROCESS-COMMENT\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:comment\() instead"
-#    unless %element-errors{'PROCESS-COMMENT'};
-#
-#  %element-errors{'PROCESS-COMMENT'} //= True;
-#        }
       }
 
       when XML::CDATA {
         if $!actions.^can('xml:cdata') {
           $!actions.'xml:cdata'( $!parent-path, $node.data());
         }
-
-#        elsif $!actions.^can('PROCESS-CDATA') {
-#          $!actions.PROCESS-CDATA( $!parent-path, $node.data());
-#  note "method call to PROCESS-CDATA\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:cdata\() instead"
-#    unless %element-errors{'PROCESS-CDATA'};
-#
-#  %element-errors{'PROCESS-CDATA'} //= True;
-#        }
       }
 
       when XML::PI {
@@ -156,43 +142,27 @@ class XML::Actions:auth<github:MARTIMM> {
           ( $target, $content) = $node.data().split( ' ', 2);
           $!actions.'xml:pi'( $!parent-path, $target, $content);
         }
-
-#        elsif $!actions.^can('PROCESS-PI') {
-#          my Str $target;
-#          my Str $content;
-#          ( $target, $content) = $node.data().split( ' ', 2);
-#  note "method call to PROCESS-PI\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide xml:pi\() instead"
-#    unless %element-errors{'PROCESS-PI'};
-#
-#  %element-errors{'PROCESS-PI'} //= True;
-#          $!actions.PROCESS-PI( $!parent-path, $target, $content);
-#        }
       }
     }
   }
 
   #-----------------------------------------------------------------------------
-  method !check-action ( $node ) {
+  method !check-action ( $node --> ActionResult ) {
 
     my Str $name = $node.name;
     my %attribs = $node.attribs;
+    my ActionResult $state = Recurse;
 
     my Str $start-node = $name ~ ":start";
     if $!actions.^can($start-node) {
-      $!actions."$start-node"( $!parent-path, |%attribs);
+      my $t = $!actions."$start-node"( $!parent-path, |%attribs);
+
+      # Check type and definedness. Only defined Boolean values are taken.
+      # All other possibilities are False by default.
+      $state = $t ~~ ActionResult ?? $t//Recurse !! Recurse;
     }
 
-
-# remove after version 0.5.0
-#elsif $!actions.^can($name) {
-#  note "method call to $name\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide $start-node\() instead"
-#    unless %element-errors{$name};
-#
-#  %element-errors{$name} //= True;
-#
-#  $!actions."$name"( $!parent-path, |%attribs);
-#}
-
+    $state;
   }
 
   #-----------------------------------------------------------------------------
@@ -205,15 +175,5 @@ class XML::Actions:auth<github:MARTIMM> {
     if $!actions.^can($end-node) {
       $!actions."$end-node"( $!parent-path, |%attribs);
     }
-
-# remove after version 0.5.0
-#elsif $!actions.^can($name ~ '-END') {
-#  note "method call to {$name}-END\() is deprecated as of version 0.3.3. It will be removed in version 0.5.0, please provide $end-node\() instead"
-#    unless %element-errors{$name ~ '-END'};
-#
-#  %element-errors{$name ~ '-END'} //= True;
-#
-#  $!actions."{$name}-END"( $!parent-path, |%attribs);
-#}
   }
 }
