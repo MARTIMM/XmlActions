@@ -52,20 +52,24 @@ ok 6 - <scxml final onentry log> found in parent array
 
 ## Documentation
 
-Users who wish to process **XML::Elements** (from the XML package) must provide an instantiated class which inherits from **XML::Actions::Work**. In that class, methods named after the elements can be defined. Those methods must have `:start` or `:end` attached to have them called when `<someElement>` or `</someElement> is encountered. The `$parent-path` is an array holding the **XML::Elements** of the parent elements with the root on the first position and the current element on the last. The attributes are found on the XML element.
+Users who wish to process **XML::Elements** (from the XML package) must provide an instantiated class which inherits from **XML::Actions::Work**. In that class, methods named after the elements can be defined. Those methods must have `:start` or `:end` attached to have them called when `<someElement>` or `</someElement>` is encountered.
 
 ```
 class A is XML::Actions::Work {
 
-  method someElement:start ( Array $parent-path, :$someAttribute ... ) {...}
-  method someElement:end ( Array $parent-path, :$someAttribute ... ) {...}
+  method someElement:start ( Array $parent-path, %*attrs --> ActionResult )
+  method someElement:end ( Array $parent-path, %*attrs )
 
-  method someOtherElement:start ( Array $parent-path, :$someAttribute ... ) {...}
-  method someOtherElement:end ( Array $parent-path, :$someAttribute ... ) {...}
+  method someOtherElement:start ( Array $parent-path, %*attrs --> ActionResult )
+  method someOtherElement:end ( Array $parent-path, %*attrs )
 }
 ```
+* The `$parent-path` is an array holding the **XML::Elements** of the parent elements with the root on the first position and the current element on the last.
+* The `%*attrs` is a Hash of the found attributes on the element.
+* The action may return a ActionResult value. When defined and set to `Truncate`, the caller will not recurse further into this element if there were any.
 
-There are also text-, comment-, cdata- and pi-nodes. They can be defined as
+
+There are also text-, comment-, cdata- and pi-nodes. They can be processed as
 ```
   method xml:text ( Array $parent-path, Str $text ) {...}
   method xml:comment ( Array $parent-path, Str $comment ) {...}
