@@ -43,7 +43,9 @@ class A is XML::Actions::Work {
     is $parent-path[*-1].name, 'complexType', '</complexType>';
   }
 
-  method xyz:element:start ( Array $parent-path, :$minOccurs, :$xyz, *%attribs ) {
+  method xyz:element:start (
+    Array $parent-path, :$minOccurs, :$xyz, *%attribs
+  ) {
     is $parent-path[*-1].name, 'xyz:element', 'start ' ~ $parent-path[*-1].name;
     is %attribs<xyz:name>, any(<State Country>), 'attribute xyz:name';
     is $minOccurs, 0, 'attribute minOccurs';
