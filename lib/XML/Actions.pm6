@@ -110,7 +110,7 @@ class XML::Actions:auth<github:MARTIMM> {
           }
 
           when Truncate {
-            note "$node.name() truncated";
+            #note "$node.name() truncated";
           }
         }
         self!check-end-node-action($node);
