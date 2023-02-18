@@ -29,8 +29,8 @@ class A is XML::Actions::Work {
   # test if readable attribute is in the way of node names
   has Str $.log;
 
-  method final:start ( Array $parent-path, :$id ) {
-    is $id, 'hello', "final called: id = $id";
+  method final:start ( Array $parent-path, *%attrs ) {
+    is %attrs<id>, 'hello', "final called: id = %attrs<id>";
     is $parent-path[*-1].name, 'final', 'this node is final';
     is $parent-path[*-2].name, 'scxml', 'parent node is scxml';
   }

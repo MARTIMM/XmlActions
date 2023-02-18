@@ -57,11 +57,11 @@ Users who wish to process **XML::Elements** (from the XML package) must provide 
 ```
 class A is XML::Actions::Work {
 
-  method someElement:start ( Array $parent-path, %*attrs --> ActionResult )
-  method someElement:end ( Array $parent-path, %*attrs )
+  method someElement:start ( Array $parent-path, *%attrs --> ActionResult )
+  method someElement:end ( Array $parent-path, *%attrs )
 
-  method someOtherElement:start ( Array $parent-path, %*attrs --> ActionResult )
-  method someOtherElement:end ( Array $parent-path, %*attrs )
+  method someOtherElement:start ( Array $parent-path, *%attrs --> ActionResult )
+  method someOtherElement:end ( Array $parent-path, *%attrs )
 }
 ```
 * The `$parent-path` is an array holding the **XML::Elements** of the parent elements with the root on the first position and the current element on the last.
