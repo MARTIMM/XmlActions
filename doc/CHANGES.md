@@ -2,6 +2,9 @@
 * 0.4.7 2020-07-08
   * Added the possibility to process html files which are parsed by **HTML::Parser::XML**.
 -->
+* 0.5.2 2026-09-13
+  * Renamed all raku extension of modules and test files. They still were in the old .pm6, .pl6 and .t.
+
 * 0.5.1 2023-02-17
   * Action methods called on **XML::Elements** can now return an `ActionResult` enumeration. Current values are `Recurse` and `Truncate`. When `Truncate` it means that further recursion in nodes is not necessary. By default it is interpreted as `Recurse`. That is, only defined `ActionResult` typed values are valid. All other possibilities are interpreted as `Recurse`.
 
