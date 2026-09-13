@@ -1,21 +1,26 @@
 {
-  "name": "XML::Actions",
   "description": "Perform actions on all XML nodes",
+  "name": "XML::Actions",
   "version": "0.5.2",
-  "authors": [ "Marcel Timmerman"],
-  "auth": "cpan:MARTIMM",
-  "license": "Artistic-2.0",
+  "author": "Marcel Timmerman",
+  "auth": "zef:martimm",
   "tags": [ "XML", "actions", "streaming", "stream"],
-  "perl": "6",
-  "depends": [
-    "XML", "HTML::Parser::XML"
-  ],
-  "test-depends": [ ],
-  "build-depends": [ ],
+
+  "raku-version": "6.d",
+  "license": "Artistic-2.0",
+
   "provides": {
     "XML::Actions": "lib/XML/Actions.rakumod",
     "XML::Actions::Stream": "lib/XML/Actions/Stream.rakumod",
     "XML::Actions::Stream::XmlNode": "lib/XML/Actions/Stream/XmlNode.rakumod"
   },
-  "source-url": "git://github.com/MARTIMM/XmlActions.git"
+
+  "source-url": "git://github.com/MARTIMM/XmlActions.git",
+
+  "depends": [
+    "XML", "HTML::Parser::XML"
+  ],  
+
+  "test-depends": [ ],
+  "build-depends": [ ]
 }
