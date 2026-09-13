@@ -13,9 +13,9 @@
   "test-depends": [ ],
   "build-depends": [ ],
   "provides": {
-    "XML::Actions": "lib/XML/Actions.pm6",
-    "XML::Actions::Stream": "lib/XML/Actions/Stream.pm6",
-    "XML::Actions::Stream::XmlNode": "lib/XML/Actions/Stream/XmlNode.pm6"
+    "XML::Actions": "lib/XML/Actions.rakumod",
+    "XML::Actions::Stream": "lib/XML/Actions/Stream.rakumod",
+    "XML::Actions::Stream::XmlNode": "lib/XML/Actions/Stream/XmlNode.rakumod"
   },
   "source-url": "git://github.com/MARTIMM/XmlActions.git"
 }
