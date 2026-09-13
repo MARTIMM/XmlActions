@@ -25,7 +25,7 @@ token type1-elements {
 }
 
 rule type2-elements {
-  [ xml <prolog> ] |
+  [ xml <prolog> ] ||
   <pi>
 }
 
